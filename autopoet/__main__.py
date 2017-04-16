@@ -1,27 +1,38 @@
 from pprint import pprint
 from webcrawler import *
+import poetcrawler
+
+def word_histogram(text):
+    histogram = {}
+
+    for word in text.split():
+        if not word.isalpha():
+            continue
+
+        word = word.lower()
+        try:
+            histogram[word] += 1
+        except KeyError:
+            histogram[word] = 1
+
+    return histogram
 
 def main():
     poet = 'petőfi'
 
     print('Grabbing data for poet', poet.capitalize())
 
-    if poet == 'petőfi':
-        crawler = build_crawler((CachedWebCrawler, ParagraphCrawler))
-        urls = crawler.crawl('http://mek.oszk.hu/01000/01006/html/')
-    elif poet == 'radnóti':
-        crawler = build_crawler((CachedWebCrawler, ParagraphCrawler))
-        urls = crawler.crawl('http://mek.oszk.hu/01000/01018/01018.htm')
-        urls.add(crawler.crawl('http://www.mek.iif.hu/porta/szint/human/szepirod/magyar/radnoti/'))
+    text = poetcrawler.gather_poet(poet)
 
-    print('\n\n')
-    pprint(urls)
-    print('\n\n')
     print('Gathered word stats: ')
-    words = crawler.words
+    words = word_histogram(text)
     sorted_words = [(k, words[k]) for k in sorted(words, key=words.get, reverse=True)]
 
-    for word, count in sorted_words:
+    print('Top 50 words:')
+    for word, count in sorted_words[:50]:
+        if count < 10:
+            continue
+
         try:
             print('{0:<32} {1}'.format(word, count))
         except UnicodeEncodeError:

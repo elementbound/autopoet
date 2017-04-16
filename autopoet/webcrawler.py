@@ -231,7 +231,6 @@ class ParagraphCrawler(BaseWebCrawler):
     Web crawler that extract paragraph data from sites.
 
     *paragraphs* stores a list of paragraphs.
-    *words* stores a word histogram.
     """
 
     def __init__(self):
@@ -241,19 +240,6 @@ class ParagraphCrawler(BaseWebCrawler):
 
     def handle_data(self, text):
         self.paragraphs.append(text)
-
-        for word in text.split():
-            # Only lower-case words
-            word = word.lower()
-
-            # Skip words that aren't entirely words
-            if not word.isalpha():
-                continue
-
-            try:
-                self.words[word] += 1
-            except KeyError:
-                self.words[word] = 1
 
 def build_crawler(base_classes, *args, **kwargs):
     return type('WebCrawler', base_classes, {})(*args, **kwargs)
