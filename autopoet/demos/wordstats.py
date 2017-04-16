@@ -1,6 +1,7 @@
 from pprint import pprint
 from autopoet.webcrawler import *
 import autopoet.poetcrawler as poetcrawler
+import autopoet.utils as utils
 
 def word_histogram(text):
     histogram = {}
@@ -20,9 +21,10 @@ def word_histogram(text):
 def run(args):
     poet = args.poet if args.poet else poetcrawler.available_poets[0]
 
-    print('Grabbing data for poet', poet.capitalize())
+    print('Grabbing data for poet', poetcrawler.poet_name(poet))
+    crawler, sources = poetcrawler.get_poet(poet)
 
-    text = poetcrawler.gather_poet(poet)
+    text = utils.gather_with_progress(crawler, sources)
 
     print('Gathered word stats: ')
     words = word_histogram(text)
