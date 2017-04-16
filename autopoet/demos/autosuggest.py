@@ -2,6 +2,7 @@ import autopoet.graph
 import autopoet.poetcrawler as poetcrawler
 
 import time
+import random
 
 def interval(rest):
     if time.clock() - interval.t_start > rest:
@@ -10,7 +11,22 @@ def interval(rest):
     else:
         return False
 
-interval.t_start = -1
+def interval_start():
+    interval.t_start = -1
+
+interval_start()
+
+def readline():
+    try:
+        return input()
+    except EOFError:
+        return '???'
+
+    import io
+    import sys
+
+    istream = io.TextIOWrapper(sys.stdin.buffer, encoding='utf-8', errors='replace')
+    return istream.readline()
 
 def clear():
     import platform
@@ -24,7 +40,7 @@ def clear():
         raise NotImplementedError()
 
 def run():
-    poet = poetcrawler.available_poets[0]
+    poet = random.choice(poetcrawler.available_poets)
     data = poetcrawler.gather_poet(poet)
 
     print('Got data for poet', poet.capitalize())
@@ -39,11 +55,17 @@ def run():
 
     print('Got', len(words), 'words and', len(word_pairs), 'pairs')
 
-    graph = autopoet.graph.WordGraph()
+    print('Gathering unique links... ')
+    links = {}
+    interval_start()
     for idx, word_pair in enumerate(word_pairs):
         word_from, word_to = word_pair
-        graph.add_node(word_from)
-        graph.add_node(word_to)
+        link = autopoet.graph.WeightedLink(word_from, word_to)
+
+        try:
+            links[link] += 1
+        except KeyError:
+            links[link] = 1
 
         if interval(0.1):
             progress = (idx+1)/len(word_pairs)
@@ -51,20 +73,36 @@ def run():
             s = '{0:<64}'.format(s)
             print(s, end='\r')
 
-        graph.add_link(autopoet.graph.WeightedLink(word_from, word_to))
+    print('\nAssembling graph... ')
+    graph = autopoet.graph.WeightedGraph()
+    for link, weight in links.items():
+        link.weight = weight
 
-    print('\nNormalizing weights...')
+        graph.add_node(link.from_node)
+        graph.add_node(link.to_node)
+        graph.add_link(link)
+
+    print('Normalizing weights...')
     graph.normalize_weights()
 
     print('Graph done with', len(graph.nodes), 'words and', len(graph.links), 'links')
     print('Press [Enter] to continue... ')
-    input()
+    readline()
+
+    word = None
 
     while True:
         clear()
 
-        print('Enter a word, exit with !exit')
-        word = input()
+        print('Your current poet is:', poet.capitalize())
+        print('Enter a word')
+        print('Exit with !exit')
+        print('Some random words:', ', '.join(random.sample(graph.nodes, 5)))
+
+        if word is None:
+            word = readline()
+            continue
+
         word = word.split()[0].lower()
 
         if word == '!exit':
@@ -73,7 +111,11 @@ def run():
         if word not in graph.nodes:
             print('Unknown word:', word)
 
+        print(word)
+
         links = graph.links_from(word)
-        links = sorted(links, key='weight', reverse=True)
+        links = sorted(links, key=lambda l: l.weight, reverse=True)
         for link in links:
             print('\t{0:<24}: {1:>2}%'.format(link.to_node, int(link.weight*100)))
+
+        word = readline()
