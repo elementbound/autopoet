@@ -10,6 +10,8 @@ import argparse
 import autopoet.demos.wordstats as wordstats
 import autopoet.demos.autosuggest as autosuggest
 
+import autopoet.poetcrawler as poetcrawler
+
 def main():
     demos = [wordstats, autosuggest]
     demo_names = [demo.__name__.split('.')[-1] for demo in demos]
@@ -18,6 +20,7 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('demo', choices=demo_names, help='Target demo to run')
+    parser.add_argument('-p', '--poet', choices=poetcrawler.available_poets, help='Set poet')
 
     args = sys.argv
     if args[0].startswith('py'):
@@ -27,6 +30,6 @@ def main():
     # Run the demo
     for demo in demos:
         if demo.__name__.endswith('.' + args.demo):
-            demo.run()
+            demo.run(args)
 
 main()

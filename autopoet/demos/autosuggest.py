@@ -28,6 +28,12 @@ def readline():
     istream = io.TextIOWrapper(sys.stdin.buffer, encoding='utf-8', errors='replace')
     return istream.readline()
 
+def diff(a, b):
+    import difflib
+
+    sq = difflib.SequenceMatcher(a=a, b=b)
+    return sq.ratio()
+
 def clear():
     import platform
     import os
@@ -39,8 +45,8 @@ def clear():
     else:
         raise NotImplementedError()
 
-def run():
-    poet = random.choice(poetcrawler.available_poets)
+def run(args):
+    poet = args.poet if args.poet else random.choice(poetcrawler.available_poets)
     data = poetcrawler.gather_poet(poet)
 
     print('Got data for poet', poet.capitalize())
@@ -109,7 +115,18 @@ def run():
             break
 
         if word not in graph.nodes:
-            print('Unknown word:', word)
+            # Fuzzy search
+            ratios = {w: diff(w, word) for w in graph.nodes}
+
+            ratios = [(k, ratios[k]) for k in sorted(ratios.keys(), key=ratios.get, reverse=True)]
+            best_word, best_ratio = ratios[0]
+
+            if best_ratio < 0.25:
+                print('Unknown word:', word)
+                print('Closest match is', best_word, 'at {0}%'.format(int(best_ratio*100)))
+                continue
+
+            word = best_word
 
         print(word)
 

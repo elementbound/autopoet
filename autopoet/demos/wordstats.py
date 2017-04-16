@@ -17,8 +17,8 @@ def word_histogram(text):
 
     return histogram
 
-def run():
-    poet = 'petőfi'
+def run(args):
+    poet = args.poet if args.poet else poetcrawler.available_poets[0]
 
     print('Grabbing data for poet', poet.capitalize())
 
