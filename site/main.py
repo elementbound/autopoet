@@ -7,12 +7,24 @@ sys.path.append(str(_autopoet_path))
 
 import flask
 import autopoet
+import autopoet.poetcrawler as poetcrawler
+import random
 
 app = flask.Flask(__name__)
 
 @app.route('/')
 def index():
-    return flask.send_from_directory('html', 'index.html')
+    # Prepare data
+    poets = poetcrawler.available_poets
+    poets = [(poet_id, poet_id.capitalize()) for poet_id in poets]
+    poets = sorted(poets, key=lambda x: x[1])
+
+    data = {
+        'poets': poets,
+        'current_poet': random.choice(poets)
+    }
+
+    return flask.render_template('index.html', **data)
 
 # Static content
 @app.route('/js/<path:path>')
