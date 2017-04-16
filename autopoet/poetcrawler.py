@@ -23,8 +23,8 @@ def gather_radnóti():
     return '\n\n'.join(crawler.paragraphs)
 
 _poet_mappings = {
-    'petőfi': gather_petőfi,
-    'radnóti': gather_radnóti
+    # 'radnóti': gather_radnóti, 
+    'petőfi': gather_petőfi
 }
 
 available_poets = list(_poet_mappings.keys())
