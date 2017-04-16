@@ -28,10 +28,17 @@ def gather_tóth():
 
     return '\n\n'.join(crawler.paragraphs)
 
+def gather_kosztolányi():
+    crawler = build_crawler((CachedWebCrawler, ParagraphCrawler))
+    crawler.crawl('http://mek.oszk.hu/00700/00753/html/')
+
+    return '\n\n'.join(crawler.paragraphs)
+
 _poet_mappings = {
     'radnóti': gather_radnóti,
     'petőfi': gather_petőfi,
-    'tóth': gather_tóth
+    'tóth': gather_tóth,
+    'kosztolányi': gather_kosztolányi
 }
 
 available_poets = list(_poet_mappings.keys())
