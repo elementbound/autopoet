@@ -1,6 +1,12 @@
+# Patch up import paths a bit
+import os
+from pathlib import Path
+
+os.chdir(str(Path('.').absolute().parent))
+
 from pprint import pprint
-from webcrawler import *
-import poetcrawler
+from autopoet.webcrawler import *
+import autopoet.poetcrawler as poetcrawler
 
 def word_histogram(text):
     histogram = {}

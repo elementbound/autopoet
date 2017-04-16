@@ -1,4 +1,4 @@
-from webcrawler import *
+from autopoet.webcrawler import *
 
 def gather_poet(poet):
     """
@@ -27,4 +27,4 @@ _poet_mappings = {
     'radnóti': gather_radnóti
 }
 
-available_poets = _poet_mappings.keys()
+available_poets = list(_poet_mappings.keys())
