@@ -8,9 +8,10 @@ import sys
 import argparse
 
 import autopoet.demos.wordstats as wordstats
+import autopoet.demos.autosuggest as autosuggest
 
 def main():
-    demos = [wordstats]
+    demos = [wordstats, autosuggest]
     demo_names = [demo.__name__.split('.')[-1] for demo in demos]
 
     # Parse arguments

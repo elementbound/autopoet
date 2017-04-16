@@ -25,8 +25,23 @@ class Graph:
     """
 
     def __init__(self):
-        self.nodes = set()
-        self.links = set()
+        self._nodes = set()
+        self._links = set()
+
+    def add_node(self, node):
+        self._nodes.add(node)
+
+    def add_link(self, link):
+        self._links.add(link)
+
+    # TODO: What am I exactly accomplishing here?
+    @property
+    def nodes(self):
+        return self._nodes
+
+    @property
+    def links(self):
+        return self._links
 
     def links_from(self, node):
         """
@@ -39,14 +54,14 @@ class Graph:
             if link.from_node == node:
                 links.append(link)
 
-        return link
+        return links
 
 class WeightedLink(Link):
     """
     Link class with weight
     """
 
-    def __init__(from_node, to_node, weight=1):
+    def __init__(self, from_node, to_node, weight=1):
         super().__init__(from_node, to_node)
         self.weight = weight
 
@@ -54,7 +69,6 @@ class WeightedGraph(Graph):
     """
     Graph with weighted links
     """
-
     def normalize_weights(self):
         """
         Normalize all link weights to ]0,1].
@@ -95,3 +109,15 @@ class WeightedGraph(Graph):
 
             if at <= 0:
                 return link.to_node
+
+class WordGraph(WeightedGraph):
+
+    def add_link(self, link):
+        # TODO: This is probably slow
+        for own_link in self._links:
+            if link == own_link:
+                own_link.weight += 1
+                return
+
+        link.weight = 1
+        self._links.add(link)
