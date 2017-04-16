@@ -1,49 +1,9 @@
 import autopoet.graph
 import autopoet.poetcrawler as poetcrawler
 
-import time
 import random
 
-def interval(rest):
-    if time.clock() - interval.t_start > rest:
-        interval.t_start = time.clock()
-        return True
-    else:
-        return False
-
-def interval_start():
-    interval.t_start = -1
-
-interval_start()
-
-def readline():
-    try:
-        return input()
-    except EOFError:
-        return '???'
-
-    import io
-    import sys
-
-    istream = io.TextIOWrapper(sys.stdin.buffer, encoding='utf-8', errors='replace')
-    return istream.readline()
-
-def diff(a, b):
-    import difflib
-
-    sq = difflib.SequenceMatcher(a=a, b=b)
-    return sq.ratio()
-
-def clear():
-    import platform
-    import os
-
-    if platform.system() == 'Windows':
-        os.system('cls')
-    elif platform.system() == 'Linux':
-        os.system('clear')
-    else:
-        raise NotImplementedError()
+from autopoet.utils import *
 
 def run(args):
     poet = args.poet if args.poet else random.choice(poetcrawler.available_poets)
