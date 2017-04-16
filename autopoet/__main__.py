@@ -4,44 +4,28 @@ from pathlib import Path
 
 os.chdir(str(Path('.').absolute().parent))
 
-from pprint import pprint
-from autopoet.webcrawler import *
-import autopoet.poetcrawler as poetcrawler
+import sys
+import argparse
 
-def word_histogram(text):
-    histogram = {}
-
-    for word in text.split():
-        if not word.isalpha():
-            continue
-
-        word = word.lower()
-        try:
-            histogram[word] += 1
-        except KeyError:
-            histogram[word] = 1
-
-    return histogram
+import autopoet.demos.wordstats as wordstats
 
 def main():
-    poet = 'petőfi'
+    demos = [wordstats]
+    demo_names = [demo.__name__.split('.')[-1] for demo in demos]
 
-    print('Grabbing data for poet', poet.capitalize())
+    # Parse arguments
+    parser = argparse.ArgumentParser()
 
-    text = poetcrawler.gather_poet(poet)
+    parser.add_argument('demo', choices=demo_names, help='Target demo to run')
 
-    print('Gathered word stats: ')
-    words = word_histogram(text)
-    sorted_words = [(k, words[k]) for k in sorted(words, key=words.get, reverse=True)]
+    args = sys.argv
+    if args[0].startswith('py'):
+        args = args[1:]
+    args = parser.parse_args(args[1:])
 
-    print('Top 50 words:')
-    for word, count in sorted_words[:50]:
-        if count < 10:
-            continue
-
-        try:
-            print('{0:<32} {1}'.format(word, count))
-        except UnicodeEncodeError:
-            print('{0:<32} {1}'.format(str(word.encode('utf-8')), count))
+    # Run the demo
+    for demo in demos:
+        if demo.__name__.endswith('.' + args.demo):
+            demo.run()
 
 main()
