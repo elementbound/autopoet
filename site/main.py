@@ -16,7 +16,7 @@ app = flask.Flask(__name__)
 def index():
     # Prepare data
     poets = poetcrawler.available_poets
-    poets = [(poet_id, poet_id.capitalize()) for poet_id in poets]
+    poets = [(poet_id, poetcrawler.poet_name(poet_id)) for poet_id in poets]
     poets = sorted(poets, key=lambda x: x[1])
 
     data = {

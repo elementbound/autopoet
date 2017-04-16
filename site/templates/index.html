@@ -35,7 +35,7 @@
                     </a></li>
                     <div data-toggle="#poet-toggler">
                         {% for poet_id, poet_name in poets %}
-                        <li><a href="#" data-poet="{{poet_id}}">
+                        <li><a href="#" data-poet="{{poet_id}}" data-update=".current-poet">
                             <span class="glyphicon glyphicon-chevron-right"></span>
                             {{ poet_name }}
                         </a></li>
