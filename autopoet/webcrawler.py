@@ -64,6 +64,11 @@ class BaseWebCrawler:
     This class is intended for subclassing.
     """
 
+    def __init__(self):
+        self.to_crawl = collections.deque()
+        self.visited_urls = set()
+        self.busy = False
+
     def check_url(self, url):
         """
         Return whether the URL has to be crawled
@@ -113,25 +118,20 @@ class BaseWebCrawler:
         See LinkExtractor
         """
 
-        to_crawl = collections.deque([url])
-        visited_urls = set()
+        self.to_crawl = collections.deque([url])
+        self.busy = True
 
-        while to_crawl:
-            url = to_crawl.pop()
+        while self.to_crawl:
+            url = self.to_crawl.pop()
             url = self.process_url(url)
 
-            print('{0} / {1}'.format(len(visited_urls), len(to_crawl)))
-
             if not self.check_url(url):
-                print('SKIP!', url)
                 continue
 
-            if url in visited_urls:
-                print('SKIP', url)
+            if url in self.visited_urls:
                 continue
 
-            print('GET', url)
-            visited_urls.add(url)
+            self.visited_urls.add(url)
             contents = self.load_url(url)
 
             if contents:
@@ -141,12 +141,13 @@ class BaseWebCrawler:
                 self.handle_data(contents)
 
                 new_urls = set(le.urls)
-                print('Gathered', len(new_urls), 'URLs')
-                to_crawl.extend(new_urls)
-            else:
-                print('Fail', url)
+                self.to_crawl.extend(new_urls)
 
-        return visited_urls
+        self.busy = False
+
+    @property
+    def progress(self):
+        return len(self.visited_urls) / max(1, len(self.visited_urls) + len(self.to_crawl))
 
 class CachedWebCrawler(BaseWebCrawler):
     """
@@ -164,6 +165,9 @@ class CachedWebCrawler(BaseWebCrawler):
 
         self.cache_dir.mkdir(exist_ok=True, parents=True)
 
+        self.cache_hits = 0
+        self.cache_misses = 0
+
         try:
             with self.cache_index.open('r', encoding='utf-8') as f:
                 self.cache = json.load(f)
@@ -175,12 +179,11 @@ class CachedWebCrawler(BaseWebCrawler):
         # Try fetching it from cache
         try:
             with Path(self.cache_dir, self.cache[url]).open('r', encoding='utf-8') as f:
+                self.cache_hits += 1
                 return f.read()
-
-            print('Grabbed', url, 'from cache')
         except KeyError:
             # Not cached, fetch it from source
-            print('Grabbing', url, 'from source')
+            self.cache_misses += 1
             contents = super().load_url(url)
 
             hash_url = url
@@ -218,11 +221,14 @@ class MaskedWebCrawler(BaseWebCrawler):
         self.pattern = re.compile('.*')
 
     def check_url(self, url):
+        """
+        Check if URL matches pattern.
+
+        **Note:** If the parent rejects the URL, it won't be matched against the pattern.
+        """
+
         if not super().check_url(url):
             return False
-
-        if self.pattern.match(url) is None:
-            print('Rejected URL:', url)
 
         return self.pattern.match(url) is not None
 
