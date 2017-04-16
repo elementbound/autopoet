@@ -76,12 +76,16 @@ class WeightedGraph(Graph):
         Note: this function assumes positive, non-zero weights
         """
 
-        for node in self.nodes:
-            links = self.links_from(node)
-            sum_weight = sum([link.weight for link in links])
-            if sum_weight:
-                for link in links:
-                    link.weight /= sum_weight
+        sums = {}
+
+        for link in self.links:
+            try:
+                sums[link.from_node] += link.weight
+            except KeyError:
+                sums[link.from_node] = link.weight
+
+        for link in self.links:
+            link.weight /= sums[link.from_node]
 
     def get_most_probable(self, node):
         """
@@ -109,15 +113,3 @@ class WeightedGraph(Graph):
 
             if at <= 0:
                 return link.to_node
-
-class WordGraph(WeightedGraph):
-
-    def add_link(self, link):
-        # TODO: This is probably slow
-        for own_link in self._links:
-            if link == own_link:
-                own_link.weight += 1
-                return
-
-        link.weight = 1
-        self._links.add(link)
