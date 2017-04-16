@@ -37,3 +37,6 @@ def run(args):
             print('{0:<32} {1}'.format(word, count))
         except UnicodeEncodeError:
             print('{0:<32} {1}'.format(str(word.encode('utf-8')), count))
+
+    print('Unique words:', len(words))
+    print('Words in total:', len(text.split()))
