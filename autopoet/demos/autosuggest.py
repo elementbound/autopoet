@@ -7,7 +7,9 @@ from autopoet.utils import *
 
 def run(args):
     poet = args.poet if args.poet else random.choice(poetcrawler.available_poets)
-    data = poetcrawler.gather_poet(poet)
+    print('Grabbing data for poet', poetcrawler.poet_name(poet))
+    crawler, sources = poetcrawler.get_poet(poet)
+    data = gather_with_progress(crawler, sources)
 
     print('Got data for poet', poet.capitalize())
     print('Creating graph... ')
@@ -37,7 +39,11 @@ def run(args):
             progress = (idx+1)/len(word_pairs)
             s = '[{0:>3}%] {1} -> {2}'.format(int(progress*100), word_from, word_to)
             s = '{0:<64}'.format(s)
-            print(s, end='\r')
+
+            try:
+                print(s, end='\r')
+            except UnicodeEncodeError:
+                print('wtf?!')
 
     print('\nAssembling graph... ')
     graph = autopoet.graph.WeightedGraph()
@@ -60,7 +66,7 @@ def run(args):
     while True:
         clear()
 
-        print('Your current poet is:', poet.capitalize())
+        print('Your current poet is:', poetcrawler.poet_name(poet))
         print('Enter a word')
         print('Exit with !exit')
         print('Some random words:', ', '.join(random.sample(graph.nodes, 5)))
