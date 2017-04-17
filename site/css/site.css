@@ -5,3 +5,18 @@
 .fullwidth {
     width: 100%;
 }
+
+/* Override default sidebar width: */
+
+#wrapper.toggled #sidebar-wrapper {
+    width: 320px;
+}
+
+.sidebar-nav {
+    width: 320px;
+}
+
+/* Hack it back to its place: */
+#page-content-wrapper {
+    margin-left: 64px;
+}
