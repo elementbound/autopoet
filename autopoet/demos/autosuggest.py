@@ -23,6 +23,7 @@ def run(args):
 
     print('Got', len(words), 'words and', len(word_pairs), 'pairs')
 
+    # TODO: use graphutils sometime? 
     print('Gathering unique links... ')
     links = {}
     interval_start()

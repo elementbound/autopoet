@@ -19,7 +19,8 @@ def poet_name(poet):
 
 def get_poet(poet):
     """
-    Gather text from a given poet. All known poets are listed in the *available_poets* variable.
+    Return gather data for a poet. The function returns a WebCrawler instance and a list of sources.
+    Pass this tuple after expansion to gather
     """
     try:
         return _poet_mappings[poet.lower()]()
@@ -27,6 +28,9 @@ def get_poet(poet):
         raise UnknownPoetException('Unknown poet: {0}'.format(poet.capitalize()))
 
 def gather(crawler, sources):
+    """
+    Gather text from a given poet. All known poets are listed in the *available_poets* variable.
+    """
     for source in sources:
         crawler.crawl(source)
 

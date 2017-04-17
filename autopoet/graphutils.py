@@ -21,4 +21,4 @@ def graph_from_words(words):
         graph.add_node(link.to_node)
         graph.add_link(link)
 
-    return graph 
+    return graph
