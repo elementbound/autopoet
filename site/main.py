@@ -8,9 +8,40 @@ sys.path.append(str(_autopoet_path))
 import flask
 import autopoet
 import autopoet.poetcrawler as poetcrawler
+import autopoet.graphutils as graphutils
+import autopoet.utils as utils
 import random
+import json
+
+# TODO: Use JSON instead of pickle
+import pickle
 
 app = flask.Flask(__name__)
+
+def load_autocomplete(poet_id):
+    cache_dir = Path('cache', 'poets')
+    cache_dir.mkdir(parents=True, exist_ok=True)
+
+    cache_file = Path(cache_dir, poet_id).with_suffix('.poet')
+
+    if cache_file.exists():
+        with cache_file.open('rb') as f:
+            return pickle.load(f)
+    else:
+        # Load
+        d = poetcrawler.get_poet(poet_id)
+        text = poetcrawler.gather(*d)
+
+        words = text.split()
+        words = [word.lower() for word in words if word.isalpha()]
+
+        graph = graphutils.graph_from_words(words)
+        graph.normalize_weights()
+
+        with cache_file.open('wb') as f:
+            pickle.dump(graph, f)
+
+        return graph
 
 @app.route('/')
 def index():
@@ -25,6 +56,37 @@ def index():
     }
 
     return flask.render_template('index.html', **data)
+
+@app.route('/autocomplete/<poet>/<word>')
+def autocomplete(poet, word):
+    graph = load_autocomplete(poet)
+    print('Looking for', word)
+
+    if word not in graph.nodes:
+        # Fuzzy search
+        ratios = {w: utils.diff(w, word) for w in graph.nodes}
+
+        ratios = [(k, ratios[k]) for k in sorted(ratios.keys(), key=ratios.get, reverse=True)]
+        best_word, best_ratio = ratios[0]
+
+        if best_ratio < 0.25:
+            print('Unknown word:', word)
+            print('Closest match is', best_word, 'at {0}%'.format(int(best_ratio*100)))
+            return json.dumps({'error': 'word not found'}, indent=4)
+
+        word = best_word
+        print('Got closest match', word, 'at', best_ratio)
+
+    links = graph.links_from(word)
+    data = []
+
+    for link in sorted(links, key=lambda x: x.weight, reverse=True):
+        data.append({
+            'word': link.to_node,
+            'weight': link.weight
+        })
+
+    return json.dumps(data, indent=4)
 
 # Static content
 @app.route('/js/<path:path>')
