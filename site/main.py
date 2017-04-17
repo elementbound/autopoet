@@ -57,8 +57,7 @@ def index():
     poets = sorted(poets, key=lambda x: x[1])
 
     data = {
-        'poets': poets,
-        'current_poet': random.choice(poets)
+        'poets': poets
     }
 
     return flask.render_template('index.html', **data)
