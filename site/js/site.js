@@ -62,6 +62,7 @@ $(document).ready(function() {
 
     function update_autocomplete(word) {
         let url = '/autocomplete/' + current_poet + '/' + word;
+        console.log(url);
 
         requests += 1;
         $('.requests-counter').html(requests);
@@ -102,7 +103,7 @@ $(document).ready(function() {
         if(autocomplete_needs_update != false) {
             if(autocomplete_needs_update != last_word)
                 update_autocomplete(autocomplete_needs_update);
-                
+
             autocomplete_needs_update = false;
         }
 
@@ -112,17 +113,26 @@ $(document).ready(function() {
     schedule_update();
 
     var f = function(event) {
-        autocomplete_needs_update = $(this).val();
+        let text = $(this).val();
+        if(text == '') {
+            autocomplete_needs_update = false;
+            return;
+        }
+
+        text = text.split(/\s+/);
+        text = text[text.length-1];
+        console.log(text);
+
+        autocomplete_needs_update = text;
     };
 
     $('.autocomplete-input').keyup(f);
     $('.autocomplete-input').blur(f);
 
-    console.log($('.autocomplete-input'));
-
+    // Debug current poet at all times
     var f = function() {
         $('.poet-variable').text(current_poet);
-        setTimeout(f, 250);
+        setTimeout(f, 100);
     };
 
     f();
