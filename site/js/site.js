@@ -9,7 +9,6 @@ $(document).ready(function() {
             target.slideToggle();
 
             let chevron = $(this).find('.glyphicon');
-            console.log(chevron);
 
             if(chevron.hasClass('glyphicon-chevron-down')) {
                 chevron.removeClass('glyphicon-chevron-down');
@@ -61,6 +60,9 @@ $(document).ready(function() {
     var requests = 0;
 
     function update_autocomplete(word) {
+        if(!current_poet)
+            return;
+
         let url = '/autocomplete/' + current_poet + '/' + word;
         console.log(url);
 
@@ -121,19 +123,10 @@ $(document).ready(function() {
 
         text = text.split(/\s+/);
         text = text[text.length-1];
-        console.log(text);
 
         autocomplete_needs_update = text;
     };
 
-    $('.autocomplete-input').keyup(f);
+    $('.autocomplete-input').keydown(f);
     $('.autocomplete-input').blur(f);
-
-    // Debug current poet at all times
-    var f = function() {
-        $('.poet-variable').text(current_poet);
-        setTimeout(f, 100);
-    };
-
-    f();
 });
