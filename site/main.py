@@ -31,6 +31,7 @@ def cache_autocomplete(poet_id, cache_file):
 
         graph = graphutils.graph_from_words(words)
         graph.normalize_weights()
+        graph.cache_links()
 
         with cache_file.open('wb') as f:
             pickle.dump(graph, f)

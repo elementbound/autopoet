@@ -27,6 +27,7 @@ class Graph:
     def __init__(self):
         self._nodes = set()
         self._links = set()
+        self._links_cache = {}
 
     def add_node(self, node):
         self._nodes.add(node)
@@ -48,13 +49,25 @@ class Graph:
         Return a list with all links originating from <node>
         """
 
-        links = []
+        try:
+            return self._links_cache[node]
+        except KeyError:
+            links = []
+
+            for link in self.links:
+                if link.from_node == node:
+                    links.append(link)
+
+            return links
+
+    def cache_links(self):
+        self._links_cache.clear()
 
         for link in self.links:
-            if link.from_node == node:
-                links.append(link)
-
-        return links
+            try:
+                self._links_cache[link.from_node].append(link)
+            except KeyError:
+                self._links_cache[link.from_node] = [link]
 
 class WeightedLink(Link):
     """
