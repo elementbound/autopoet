@@ -85,6 +85,9 @@ def autocomplete(poet, word):
     links = graph.links_from(word)
     data = []
 
+    if len(links) > 10:
+        links = links[0:10]
+
     for link in sorted(links, key=lambda x: x.weight, reverse=True):
         data.append({
             'word': link.to_node,
