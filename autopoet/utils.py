@@ -118,7 +118,8 @@ def async_crawl(crawler, url, callback, cb_args=[], cb_kwds={}, interval=0.05):
     return do_async(_run, callback=callback, cb_args=cb_args, cb_kwds=cb_kwds, interval=interval)
 
 def async_crawl_progress(crawler, url, interval=0.05):
-    def _callback(crawler, url):
+    # TODO: Crashes without *args, figure out why
+    def _callback(crawler, url, *args):
         progressbar(crawler.progress)
 
         if crawler.busy:

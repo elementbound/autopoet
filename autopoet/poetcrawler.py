@@ -9,7 +9,8 @@ def poet_name(poet):
         'radnóti': 'Radnóti Miklós',
         'petőfi': 'Petőfi Sándor',
         'tóth': 'Tóth Árpád',
-        'kosztolányi': 'Kosztolányi Dezső'
+        'kosztolányi': 'Kosztolányi Dezső',
+        'örkény': 'Örkény István'
     }
 
     try:
@@ -63,11 +64,23 @@ def get_kosztolányi():
 
     return (crawler, sources)
 
+def get_örkény():
+    crawler = build_crawler((CachedWebCrawler, ParagraphCrawler))
+    sources = [
+        'http://www.mek.oszk.hu/06300/06319/06319.htm',
+        'http://www.mek.oszk.hu/06300/06320/06320.htm',
+        'http://www.mek.oszk.hu/06300/06345/06345.htm',
+        'http://www.mek.oszk.hu/06300/06350/06350.htm'
+    ]
+
+    return crawler, sources
+
 _poet_mappings = {
     'radnóti': get_radnóti,
     'petőfi': get_petőfi,
     'tóth': get_tóth,
-    'kosztolányi': get_kosztolányi
+    'kosztolányi': get_kosztolányi,
+    'örkény': get_örkény
 }
 
 available_poets = list(_poet_mappings.keys())
