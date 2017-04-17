@@ -41,6 +41,14 @@
                         </a></li>
                         {% endfor %}
                     </div>
+
+                    <li><a href="#">
+                        Autocomplete requests: <span class="requests-counter"></span>
+                    </a></li>
+
+                    <li><a href="#">
+                        Poet variable: <span class="poet-variable"></span>
+                    </a></li>
                 </ul>
             </div>
 
@@ -49,7 +57,10 @@
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col-lg-12">
-                            <input type="text" placeholder="Say something..." />
+                            <input class="borderless autocomplete-input" type="text" placeholder="Say something..." />
+                            <hr/>
+                            <table class="borderless autocomplete-suggestions">
+                            </table>
                         </div>
                     </div>
                 </div>

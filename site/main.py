@@ -18,15 +18,9 @@ import pickle
 
 app = flask.Flask(__name__)
 
-def load_autocomplete(poet_id):
-    cache_dir = Path('cache', 'poets')
-    cache_dir.mkdir(parents=True, exist_ok=True)
-
-    cache_file = Path(cache_dir, poet_id).with_suffix('.poet')
-
+def cache_autocomplete(poet_id, cache_file):
     if cache_file.exists():
-        with cache_file.open('rb') as f:
-            return pickle.load(f)
+        return False
     else:
         # Load
         d = poetcrawler.get_poet(poet_id)
@@ -41,7 +35,18 @@ def load_autocomplete(poet_id):
         with cache_file.open('wb') as f:
             pickle.dump(graph, f)
 
-        return graph
+        return True
+
+def load_autocomplete(poet_id):
+    cache_dir = Path('cache', 'poets')
+    cache_dir.mkdir(parents=True, exist_ok=True)
+
+    cache_file = Path(cache_dir, poet_id).with_suffix('.poet')
+
+    cache_autocomplete(poet_id, cache_file)
+
+    with cache_file.open('rb') as f:
+        return pickle.load(f)
 
 @app.route('/')
 def index():
@@ -87,6 +92,11 @@ def autocomplete(poet, word):
         })
 
     return json.dumps(data, indent=4)
+
+@app.route('/load/<poet>')
+def load(poet):
+    load_autocomplete(poet)
+    return json.dumps({'success': True}, indent=4)
 
 # Static content
 @app.route('/js/<path:path>')
